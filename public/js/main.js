@@ -31,7 +31,6 @@
                 $scope.messages = result.data;
                 console.log($scope.messages);
             })
-        }
-
+        };
     });
 })();

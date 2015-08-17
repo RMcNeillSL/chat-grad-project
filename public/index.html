@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" ng-app="ChatApp">
+
     <head>
         <meta charset="utf-8">
         <title>Chat</title>
@@ -7,9 +8,11 @@
         <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-route.min.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-resource.min.js"></script>
+        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
         <script src="js/main.js"></script>
     </head>
 
+<section>
     <body ng-controller="ChatController">
         <a ng-show="!loggedIn" href="{{loginUri}}">Log in</a>
         <section ng-show="loggedIn">
@@ -25,4 +28,6 @@
             </ul>
         </section>
     </body>
+</section>
+
 </html>

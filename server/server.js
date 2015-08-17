@@ -110,36 +110,28 @@ module.exports = function(port, db, githubAuthoriser) {
     });
 
 
-    app.get("/api/conversations/:name"), function (req, res) {
+    app.get("/api/conversations/:name", function (req, res) {
         var sendToId = req.params.name;
         var senderId = req.session.user;
 
-        conversations.find({
-            senderId: { $in: [ senderId, sendToId ] }
-        })
-    }
-
-
-    if (githubUser) {
-        users.findOne({
-            _id: githubUser.login
-        }, function(err, user) {
-            if (!user) {
-                // TODO: Wait for this operation to complete
-                users.insertOne({
-                    _id: githubUser.login,
-                    name: githubUser.name,
-                    avatarUrl: githubUser.avatar_url
-                });
-            }
-            sessions[token] = {
-                user: githubUser.login
-            };
-            res.cookie("sessionToken", token);
-            res.header("Location", "/");
-            res.sendStatus(302);
+        conversations.find( {
+            senderId: { $in: [ senderId, sendToId ] },
+            sendToId: { $in: [ senderId, sendToId ] }
+        }).toArray(function (err, docs) {
+                if (!err) {
+                    res.json(docs.map(function(conversation) {
+                        return {
+                            senderId: conversation.senderId,
+                            sendToId: conversation.sendToId,
+                            sendDate: conversation.sendDate,
+                            message: conversation.message
+                        };
+                    }));
+                } else {
+                    res.sendStatus(500);
+                }
         });
-    }
+    });
 
     return app.listen(port);
 };
