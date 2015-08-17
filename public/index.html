@@ -21,13 +21,18 @@
             <ul>
                 <li ng-repeat="user in users">
                     {{user.name}}
-                    <input id="new-message" type="text" placeholder="What would you like to say?" ng-model="newMessage" class="form-control">
-                    <button ng-click="createChat(user, newMessage)" id="create-chat">Send</button>
-                    <button ng-click="getMessages(user)" id="get-messages">Get Messages</button>
+                    <button ng-click="getMessages(user)" id="get-messages">Chat</button>
                 </li>
             </ul>
         </section>
     </body>
+</section>
+
+<section>
+    <h2>Chat Window</h2>
+    <textarea id="chatarea" rows="15" class="col-md-12" ng-bind="allMessageString"></textarea>
+    <input id="new-message" type="text" placeholder="What would you like to say?" ng-model="newMessage" class="form-control">
+    <button ng-click="sendMessage(newMessage)" id="create-chat">Send</button>
 </section>
 
 </html>
