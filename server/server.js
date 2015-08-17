@@ -1,13 +1,16 @@
 var express = require("express");
 var cookieParser = require("cookie-parser");
+var bodyParser = require("body-parser");
 
 module.exports = function(port, db, githubAuthoriser) {
     var app = express();
 
     app.use(express.static("public"));
     app.use(cookieParser());
+    app.use(bodyParser.json());
 
-    var users = db.collection("users");
+    var users = db.collection("users-rmcneill");
+    var conversations = db.collection("conversations-rmcneill");
     var sessions = {};
 
     app.get("/oauth", function(req, res) {
@@ -85,6 +88,58 @@ module.exports = function(port, db, githubAuthoriser) {
             }
         });
     });
+
+    app.get("/api/conversations", function(req, res) {
+
+    });
+
+    app.post("/api/conversations/:name", function(req, res) {
+        var sendToId = req.params.name;
+        var senderId = req.session.user;
+        var message = req.body.body;
+        var sendDate = req.body.sent;
+
+        conversations.insertOne({
+            senderId: senderId,
+            sendToId: sendToId,
+            sendDate: sendDate,
+            message: message
+        });
+
+        res.sendStatus(201);        //TODO: Error checking
+    });
+
+
+    app.get("/api/conversations/:name"), function (req, res) {
+        var sendToId = req.params.name;
+        var senderId = req.session.user;
+
+        conversations.find({
+            senderId: { $in: [ senderId, sendToId ] }
+        })
+    }
+
+
+    if (githubUser) {
+        users.findOne({
+            _id: githubUser.login
+        }, function(err, user) {
+            if (!user) {
+                // TODO: Wait for this operation to complete
+                users.insertOne({
+                    _id: githubUser.login,
+                    name: githubUser.name,
+                    avatarUrl: githubUser.avatar_url
+                });
+            }
+            sessions[token] = {
+                user: githubUser.login
+            };
+            res.cookie("sessionToken", token);
+            res.header("Location", "/");
+            res.sendStatus(302);
+        });
+    }
 
     return app.listen(port);
 };

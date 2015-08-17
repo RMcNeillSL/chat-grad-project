@@ -3,9 +3,13 @@
     <head>
         <meta charset="utf-8">
         <title>Chat</title>
-        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.1/angular.min.js"></script>
+        <!--<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.1/angular.min.js"></script>-->
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-route.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-resource.min.js"></script>
         <script src="js/main.js"></script>
     </head>
+
     <body ng-controller="ChatController">
         <a ng-show="!loggedIn" href="{{loginUri}}">Log in</a>
         <section ng-show="loggedIn">
@@ -14,6 +18,9 @@
             <ul>
                 <li ng-repeat="user in users">
                     {{user.name}}
+                    <input id="new-message" type="text" placeholder="What would you like to say?" ng-model="newMessage" class="form-control">
+                    <button ng-click="createChat(user, newMessage)" id="create-chat">Send</button>
+                    <button ng-click="getMessages(user)" id="get-messages">Get Messages</button>
                 </li>
             </ul>
         </section>
