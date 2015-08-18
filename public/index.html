@@ -12,27 +12,45 @@
         <script src="js/main.js"></script>
     </head>
 
-<section>
+<section class="col-md-6 nopad">
     <body ng-controller="ChatController">
         <a ng-show="!loggedIn" href="{{loginUri}}">Log in</a>
         <section ng-show="loggedIn">
             <p>Logged in as {{user.name}}.</p>
             <h2>List of registered users</h2>
-            <ul>
-                <li ng-repeat="singleUser in users" ng-show="singleUser.name != user.name">
-                    {{singleUser.name}}
-                    <button ng-click="getMessages(singleUser)" id="get-messages">Chat</button>
-                </li>
-            </ul>
+
+            <table class="table table-striped" id="user-list">
+                <th>Avatar</th>
+                <th>User</th>
+                <th>Actions</th>
+                <tr ng-repeat="singleUser in users" ng-show="singleUser.name != user.name">
+                    <td>
+                        <img src={{singleUser.avatarUrl}} class="img-circle" alt="Cinque Terre" width="50" height="50">
+                    </td>
+                    <td style="vertical-align:middle">
+                        {{singleUser.name}}
+                    </td>
+                    <td style="vertical-align:middle">
+                        <button ng-click="getMessages(singleUser)" id="start-chat" class="btn btn-primary"><span class="glyphicon glyphicon-user"></span> Chat</button>
+                    </td>
+                </tr>
+            </table>
         </section>
     </body>
 </section>
 
-<section ng-show="loggedIn">
+<section ng-show="loggedIn" class="col-md-6 nopad">
     <h2>Chat Window</h2>
-    <textarea id="chatarea" rows="15" class="col-md-12" ng-bind="allMessageString" readOnly="true"></textarea>
-    <input id="new-message" type="text" placeholder="What would you like to say?" ng-model="newMessage" class="form-control">
-    <button ng-click="sendMessage(newMessage)" id="create-chat">Send</button>
+    <textarea id="chatarea" rows="15" class="col-md-10 col-md-offset-1" ng-bind="allMessageString" readOnly="true"></textarea>
+    <div class="row">
+        <div class="col-md-8 col-md-offset-1">
+            <input id="new-message" type="text" placeholder="What would you like to say?" ng-model="newMessage" class="form-control nopad">
+        </div>
+        <div class="col-md-2">
+            <button ng-click="sendMessage(newMessage)" id="create-chat"class="btn btn-primary"><span class="glyphicon glyphicon-send"></span> Send</button>
+        </div>
+    </div>
 </section>
 
+    <link href="main.css" rel="stylesheet" type="text/css">
 </html>
