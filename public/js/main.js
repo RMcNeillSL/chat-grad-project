@@ -76,7 +76,7 @@
         };
 
         $scope.startMessageInterval = function() {
-            setInterval($scope.getMessages, 2500);
+            setInterval($scope.getMessages, 1000);
         };
 
         $scope.startUsersInterval = function () {
