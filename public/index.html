@@ -16,8 +16,8 @@
     <body ng-controller="ChatController">
         <a ng-show="!loggedIn" href="{{loginUri}}">Log in</a>
         <section ng-show="loggedIn">
-            <p>Logged in as {{user.name}}.</p>
-            <h2>List of registered users</h2>
+            <p>Weclome {{user.name}}!</p>
+            <h2>Registered users</h2>
 
             <table class="table table-striped" id="user-list">
                 <th>Avatar</th>

@@ -66,17 +66,20 @@
                 $scope.formattedTime = new Date (message.sendDate).toUTCString().slice(17, 25);
                 $scope.formattedDate = new Date (message.sendDate).toUTCString().slice(0, 16);
 
-                if ($scope.formattedDate !== $scope.previousDate) {
-                    $scope.messageArray.push($scope.formattedDate);
-                    $scope.previousDate = $scope.formattedDate;
-                }
                 if (message.senderId !== message.sendToId) {
+                    if (($scope.formattedDate !== $scope.previousDate)) {
+                        $scope.messageArray.push("");
+                        $scope.messageArray.push($scope.formattedDate);
+                        $scope.previousDate = $scope.formattedDate;
+                    }
+
                     $scope.messageString = $scope.formattedTime + " - " + message.senderId + ": " + message.message;
                     $scope.messageArray.push($scope.messageString);
                 }
             });
             $scope.allMessageString = $scope.messageArray.join("\n");
             $scope.textarea.scrollTop = $scope.textarea.scrollHeight;
+            $scope.previousDate = "";
         };
 
         $scope.startInterval = function() {
