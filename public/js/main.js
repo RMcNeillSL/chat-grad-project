@@ -34,6 +34,12 @@
             });
         };
 
+        $scope.getUsers = function() {
+            $http.get("/api/users").then(function(result) {
+                $scope.users = result.data;
+            });
+        };
+
         $scope.getMessages = function(user) {
             $scope.id = "";
             if (!user) {
@@ -57,11 +63,16 @@
 
         $scope.convertMessages = function() {
             $scope.messages.forEach(function(message) {
-                $scope.formattedDate = new Date (message.sendDate).toUTCString();
+                $scope.formattedTime = new Date (message.sendDate).toUTCString().slice(17, 25);
+                $scope.formattedDate = new Date (message.sendDate).toUTCString().slice(0, 16);
 
+
+                if($scope.formattedDate !== $scope.previousDate) {
+                    $scope.messageArray.push($scope.formattedDate);
+                    $scope.previousDate = $scope.formattedDate;
+                }
                 if (message.senderId !== message.sendToId) {
-                    $scope.messageString = message.senderId + " TO " + message.sendToId + " AT " +
-                        $scope.formattedDate + ": " + message.message;
+                    $scope.messageString = $scope.formattedTime + " - " + message.senderId + ": " + message.message;
                     $scope.messageArray.push($scope.messageString);
                 }
             });
@@ -73,5 +84,6 @@
             setInterval($scope.getMessages, 5000);
         };
 
+        setInterval($scope.getUsers, 5000);
     });
 })();

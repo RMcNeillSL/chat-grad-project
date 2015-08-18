@@ -12,7 +12,7 @@
         <script src="js/main.js"></script>
     </head>
 
-<section class="col-md-6 nopad">
+<section class="col-md-4 nopad">
     <body ng-controller="ChatController">
         <a ng-show="!loggedIn" href="{{loginUri}}">Log in</a>
         <section ng-show="loggedIn">
@@ -39,9 +39,9 @@
     </body>
 </section>
 
-<section ng-show="loggedIn" class="col-md-6 nopad">
+<section ng-show="loggedIn" class="col-md-8 nopad">
     <h2>Chat Window</h2>
-    <textarea id="chatarea" rows="15" class="col-md-10 col-md-offset-1" ng-bind="allMessageString" readOnly="true"></textarea>
+    <textarea id="chatarea" rows="15" class="col-md-10 col-md-offset-1 textbox" ng-bind="allMessageString" readOnly="true"></textarea>
     <div class="row">
         <div class="col-md-8 col-md-offset-1">
             <input id="new-message" type="text" placeholder="What would you like to say?" ng-model="newMessage" class="form-control nopad">
