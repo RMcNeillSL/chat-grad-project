@@ -52,7 +52,7 @@
                     $scope.startInterval();
                     $scope.intervalSet = true;
                 }
-            })
+            });
         };
 
         $scope.convertMessages = function() {
