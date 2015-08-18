@@ -66,8 +66,7 @@
                 $scope.formattedTime = new Date (message.sendDate).toUTCString().slice(17, 25);
                 $scope.formattedDate = new Date (message.sendDate).toUTCString().slice(0, 16);
 
-
-                if($scope.formattedDate !== $scope.previousDate) {
+                if ($scope.formattedDate !== $scope.previousDate) {
                     $scope.messageArray.push($scope.formattedDate);
                     $scope.previousDate = $scope.formattedDate;
                 }
