@@ -77,5 +77,10 @@ h2 {
 
 .textbox {
     font-size: 17px;
-    height: 80vh
+    height: 80vh;
+}
+
+.regUsers {
+    height: 65vh;
+    overflow: auto;
 }
