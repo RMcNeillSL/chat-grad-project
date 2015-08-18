@@ -14,6 +14,7 @@
             $scope.user = userResult.data;
             $http.get("/api/users").then(function(result) {
                 $scope.users = result.data;
+                $scope.startUsersInterval();
             });
         }, function() {
             $http.get("/api/oauth/uri").then(function(result) {
@@ -55,7 +56,7 @@
                 $scope.convertMessages();
 
                 if ($scope.intervalSet === false) {
-                    $scope.startInterval();
+                    $scope.startMessageInterval();
                     $scope.intervalSet = true;
                 }
             });
@@ -72,7 +73,6 @@
                         $scope.messageArray.push($scope.formattedDate);
                         $scope.previousDate = $scope.formattedDate;
                     }
-
                     $scope.messageString = $scope.formattedTime + " - " + message.senderId + ": " + message.message;
                     $scope.messageArray.push($scope.messageString);
                 }
@@ -82,10 +82,12 @@
             $scope.previousDate = "";
         };
 
-        $scope.startInterval = function() {
-            setInterval($scope.getMessages, 5000);
+        $scope.startMessageInterval = function() {
+            setInterval($scope.getMessages, 2500);
         };
 
-        setInterval($scope.getUsers, 5000);
+        $scope.startUsersInterval = function () {
+            setInterval($scope.getUsers, 5000);
+        }
     });
 })();

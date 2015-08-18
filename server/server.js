@@ -9,7 +9,7 @@ module.exports = function(port, db, githubAuthoriser) {
     app.use(cookieParser());
     app.use(bodyParser.json());
 
-    var users = db.collection("users-rmcneill");
+    var users = db.collection("users");
     var conversations = db.collection("conversations-rmcneill");
     var sessions = {};
 
