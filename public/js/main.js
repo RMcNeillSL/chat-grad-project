@@ -88,6 +88,6 @@
 
         $scope.startUsersInterval = function () {
             setInterval($scope.getUsers, 5000);
-        }
+        };
     });
 })();
