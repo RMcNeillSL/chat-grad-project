@@ -53,6 +53,7 @@
                 $scope.allMessageString = "";
                 $scope.messageArray = [];
                 $scope.messages = result.data;
+                console.log($scope.messages);
                 $scope.convertMessages();
 
                 if ($scope.intervalSet === false) {
@@ -64,21 +65,14 @@
 
         $scope.convertMessages = function() {
             $scope.messages.forEach(function(message) {
-                $scope.formattedTime = new Date (message.sendDate).toUTCString().slice(17, 25);
                 $scope.formattedDate = new Date (message.sendDate).toUTCString().slice(0, 16);
+                message.formattedTime = new Date (message.sendDate).toUTCString().slice(17, 25);
+                message.formattedDate = new Date (message.sendDate).toUTCString().slice(0, 16);
 
-                if (message.senderId !== message.sendToId) {
-                    if (($scope.formattedDate !== $scope.previousDate)) {
-                        $scope.messageArray.push("");
-                        $scope.messageArray.push($scope.formattedDate);
-                        $scope.previousDate = $scope.formattedDate;
-                    }
-                    $scope.messageString = $scope.formattedTime + " - " + message.senderId + ": " + message.message;
-                    $scope.messageArray.push($scope.messageString);
-                }
+                //$scope.messageString = $scope.formattedTime + " - " + message.senderId + ": " + message.message;
+                //$scope.messageArray.push($scope.messageString);
             });
-            $scope.allMessageString = $scope.messageArray.join("\n");
-            $scope.textarea.scrollTop = $scope.textarea.scrollHeight;
+            //$scope.allMessageString = $scope.messageArray.join("\n");
             $scope.previousDate = "";
         };
 
@@ -89,5 +83,19 @@
         $scope.startUsersInterval = function () {
             setInterval($scope.getUsers, 5000);
         };
+
+        $scope.deleteConversation = function () {
+            $http.delete("/api/conversations/")
+        };
+
+        $scope.deleteTodo = function (todo) {
+            $http.delete("/api/todo/" + todo.id).then(function (response) {
+                $scope.getTodoList();
+            }, function (response) {
+                $scope.errorText = "Failed to delete todo list item with ID " +
+                    todo.id + ". Server returned " + response.status + " - " + response.statusText;
+            });
+        };
+
     });
 })();

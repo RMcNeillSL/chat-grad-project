@@ -3,8 +3,7 @@
 
     <head>
         <meta charset="utf-8">
-        <title>Chat</title>
-        <!--<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.1/angular.min.js"></script>-->
+        <title>Robert's Chat</title>
         <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-route.min.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-resource.min.js"></script>
@@ -12,7 +11,7 @@
         <script src="js/main.js"></script>
     </head>
 
-<section class="col-md-4 nopad">
+<section class="col-md-5 nopad">
     <body ng-controller="ChatController">
         <a ng-show="!loggedIn" href="{{loginUri}}" class="btn btn-success btn-lg"><span class="glyphicon glyphicon-lock"></span> Log in</a>
 
@@ -35,7 +34,7 @@
                         {{user._id}}
                     </td>
                     <td style="vertical-align:middle">
-
+                        <button ng-click="deleteConversation(singleUser)" ng-if="currentChatTarget" id="delete-conversation" class="btn btn-danger btn-sm"><span class="glyphicon glyphicon-trash"></span> Delete Conversation</button>
                     </td>
                 </tr>
             </table>
@@ -45,7 +44,7 @@
                 <input id="search-users" type="text" placeholder="Search users" ng-model="searchUsers" class="form-control">
             </div>
 
-            <h2 >Registered users</h2>
+            <h2>Registered users</h2>
             <div class="regUsers">
                 <table class="table table-striped" id="user-list">
                     <tr>
@@ -64,7 +63,7 @@
                             {{singleUser.id}}
                         </td>
                         <td style="vertical-align:middle">
-                            <button ng-click="getMessages(singleUser)" id="start-chat" class="btn btn-primary"><span class="glyphicon glyphicon-user"></span> Chat</button>
+                            <button ng-click="getMessages(singleUser)" id="start-chat" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-user"></span> Chat</button>
                         </td>
                     </tr>
                 </table>
@@ -73,17 +72,46 @@
     </body>
 </section>
 
-<section ng-show="loggedIn" class="col-md-8 nopad">
+<section ng-show="loggedIn" class="col-md-7 nopad">
     <div class="col-md-offset-1">
         <h2>Chat Window</h2>
     </div>
-    <textarea id="chatarea" rows="15" class="col-md-10 col-md-offset-1 textbox" ng-bind="allMessageString" readOnly="true"></textarea>
+    <div class="col-md-11 col-md-offset-1 container-fluid">
+        <div ng-repeat="message in messages">
+            <div class="row receivedMessage" ng-if="message.senderId != user._id">
+                <div class="col-md-1 nopad messageAvatar" style="vertical-align:middle">
+                    <img src={{currentChatTarget.avatarUrl}} class="img-circle center-block" alt="Cinque Terre" width="50" height="50" ng-if="message.senderId != user._id">
+                    <img src={{user.avatarUrl}} class="img-circle center-block" alt="Cinque Terre" width="50" height="50" ng-if="message.senderId == user._id">
+                </div>
+                <div class="col-md-2 nopad">
+                    <p class="messageSender nopad">{{message.senderId}}</p>
+                    <p class="messageTime nopad">{{message.formattedTime}}</p>
+                </div>
+                <div class="col-md-9 messageText" style="vertical-align:middle">
+                    {{message.message}}
+                </div>
+            </div>
+            <div class="row sentMessage" ng-if="message.senderId == user._id">
+                <div class="col-md-9 messageText" style="vertical-align:middle">
+                    {{message.message}}
+                </div>
+                <div class="col-md-2 nopad">
+                    <p class="messageSender nopad">{{message.senderId}}</p>
+                    <p class="messageTime nopad">{{message.formattedTime}}</p>
+                </div>
+                <div class="col-md-1 nopad messageAvatar" style="vertical-align:middle">
+                    <img src={{currentChatTarget.avatarUrl}} class="img-circle center-block" alt="Cinque Terre" width="45" height="45" ng-if="message.senderId != user._id">
+                    <img src={{user.avatarUrl}} class="img-circle center-block" alt="Cinque Terre" width="45" height="45" ng-if="message.senderId == user._id">
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="row">
-        <div class="col-md-8 col-md-offset-1">
+        <div class="col-md-9 col-md-offset-1">
             <input id="new-message" type="text" placeholder="What would you like to say?" ng-model="newMessage" class="form-control nopad">
         </div>
         <div class="col-md-2">
-            <button ng-click="sendMessage(newMessage)" id="create-chat"class="btn btn-primary"><span class="glyphicon glyphicon-send"></span> Send</button>
+            <button ng-click="sendMessage(newMessage)" id="create-chat" class="btn btn-primary btn-block"><span class="glyphicon glyphicon-send"></span> Send</button>
         </div>
     </div>
 </section>
