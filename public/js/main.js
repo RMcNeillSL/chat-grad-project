@@ -6,7 +6,7 @@
         $scope.messageArray = [];
         $scope.allMessageString = "";
         $scope.currentChatTarget = "";
-        $scope.textarea = document.getElementById('chatarea');
+        $scope.textarea = document.getElementById("chatarea");
         $scope.intervalSet = false;
 
         $http.get("/api/user").then(function(userResult) {
@@ -60,8 +60,8 @@
                 $scope.formattedDate = new Date (message.sendDate).toUTCString();
 
                 if(message.senderId !== message.sendToId) {
-                    $scope.messageString = message.senderId + " TO " + message.sendToId + " AT " + $scope.formattedDate
-                        + ": " + message.message;
+                    $scope.messageString = message.senderId + " TO " + message.sendToId + " AT " +
+                        $scope.formattedDate + ": " + message.message;
                     $scope.messageArray.push($scope.messageString);
                 }
             });
@@ -71,7 +71,7 @@
 
         $scope.startInterval = function() {
             setInterval($scope.getMessages, 5000);
-        }
+        };
 
     });
 })();
