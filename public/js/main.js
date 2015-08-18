@@ -24,6 +24,7 @@
                 "sent": Date.now(),
                 "body": newMessage
             }).then(function (response) {
+                $scope.newMessage = "";
                 $scope.allMessageString = "";
                 $scope.getMessages($scope.currentChatTarget);
             }, function (response) {
@@ -32,18 +33,24 @@
         };
 
         $scope.getMessages = function(user) {
-            $http.get("/api/conversations/" + user.id).then(function(result) {
+            $scope.id = "";
+            if(!user){
+                $scope.id = $scope.currentChatTarget.id;
+            } else {
+                $scope.id = user.id;
+                $scope.currentChatTarget = user;
+            }
+            $http.get("/api/conversations/" + $scope.id).then(function(result) {
                 $scope.allMessageString = "";
                 $scope.messageArray = [];
                 $scope.messages = result.data;
-                $scope.currentChatTarget = user;
                 $scope.convertMessages();
             })
         };
 
         $scope.convertMessages = function() {
             $scope.messages.forEach(function(message) {
-                $scope.formattedDate = new Date (message.sendDate);
+                $scope.formattedDate = new Date (message.sendDate).toUTCString();
 
                 if(message.senderId !== message.sendToId) {
                     $scope.messageString = message.senderId + " TO " + message.sendToId + " AT " + $scope.formattedDate
@@ -52,6 +59,8 @@
                 }
             });
             $scope.allMessageString = $scope.messageArray.join("\n");
-        }
+        };
+
+        setInterval($scope.getMessages, 5000);
     });
 })();
