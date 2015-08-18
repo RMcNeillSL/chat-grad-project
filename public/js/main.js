@@ -53,7 +53,6 @@
                 $scope.allMessageString = "";
                 $scope.messageArray = [];
                 $scope.messages = result.data;
-                console.log($scope.messages);
                 $scope.convertMessages();
 
                 if ($scope.intervalSet === false) {
@@ -84,9 +83,9 @@
             setInterval($scope.getUsers, 5000);
         };
 
-        $scope.deleteConversation = function () {
-            $http.delete("/api/conversations/")
-        };
+        //$scope.deleteConversation = function () {
+        //    $http.delete("/api/conversations/")
+        //};
 
         $scope.deleteTodo = function (todo) {
             $http.delete("/api/todo/" + todo.id).then(function (response) {
