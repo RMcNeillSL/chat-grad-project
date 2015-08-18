@@ -6,6 +6,8 @@
         $scope.messageArray = [];
         $scope.allMessageString = "";
         $scope.currentChatTarget = "";
+        $scope.textarea = document.getElementById('chatarea');
+        $scope.intervalSet = false;
 
         $http.get("/api/user").then(function(userResult) {
             $scope.loggedIn = true;
@@ -45,6 +47,11 @@
                 $scope.messageArray = [];
                 $scope.messages = result.data;
                 $scope.convertMessages();
+
+                if ($scope.intervalSet === false) {
+                    $scope.startInterval();
+                    $scope.intervalSet = true;
+                }
             })
         };
 
@@ -59,8 +66,12 @@
                 }
             });
             $scope.allMessageString = $scope.messageArray.join("\n");
+            $scope.textarea.scrollTop = $scope.textarea.scrollHeight;
         };
 
-        setInterval($scope.getMessages, 5000);
+        $scope.startInterval = function() {
+            setInterval($scope.getMessages, 5000);
+        }
+
     });
 })();

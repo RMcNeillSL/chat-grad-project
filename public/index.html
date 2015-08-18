@@ -19,18 +19,18 @@
             <p>Logged in as {{user.name}}.</p>
             <h2>List of registered users</h2>
             <ul>
-                <li ng-repeat="user in users">
-                    {{user.name}}
-                    <button ng-click="getMessages(user)" id="get-messages">Chat</button>
+                <li ng-repeat="singleUser in users" ng-show="singleUser.name != user.name">
+                    {{singleUser.name}}
+                    <button ng-click="getMessages(singleUser)" id="get-messages">Chat</button>
                 </li>
             </ul>
         </section>
     </body>
 </section>
 
-<section>
+<section ng-show="loggedIn">
     <h2>Chat Window</h2>
-    <textarea id="chatarea" rows="15" class="col-md-12" ng-bind="allMessageString"></textarea>
+    <textarea id="chatarea" rows="15" class="col-md-12" ng-bind="allMessageString" readOnly="true"></textarea>
     <input id="new-message" type="text" placeholder="What would you like to say?" ng-model="newMessage" class="form-control">
     <button ng-click="sendMessage(newMessage)" id="create-chat">Send</button>
 </section>
