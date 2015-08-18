@@ -36,7 +36,7 @@
 
         $scope.getMessages = function(user) {
             $scope.id = "";
-            if(!user){
+            if (!user) {
                 $scope.id = $scope.currentChatTarget.id;
             } else {
                 $scope.id = user.id;
@@ -59,7 +59,7 @@
             $scope.messages.forEach(function(message) {
                 $scope.formattedDate = new Date (message.sendDate).toUTCString();
 
-                if(message.senderId !== message.sendToId) {
+                if (message.senderId !== message.sendToId) {
                     $scope.messageString = message.senderId + " TO " + message.sendToId + " AT " +
                         $scope.formattedDate + ": " + message.message;
                     $scope.messageArray.push($scope.messageString);

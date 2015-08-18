@@ -109,27 +109,26 @@ module.exports = function(port, db, githubAuthoriser) {
         res.sendStatus(201);        //TODO: Error checking
     });
 
-
     app.get("/api/conversations/:name", function (req, res) {
         var sendToId = req.params.name;
         var senderId = req.session.user;
 
-        conversations.find( {
-            senderId: { $in: [ senderId, sendToId ] },
-            sendToId: { $in: [ senderId, sendToId ] }
+        conversations.find({
+            senderId: {$in: [senderId, sendToId]},
+            sendToId: {$in: [senderId, sendToId]}
         }).toArray(function (err, docs) {
-                if (!err) {
-                    res.json(docs.map(function(conversation) {
-                        return {
-                            senderId: conversation.senderId,
-                            sendToId: conversation.sendToId,
-                            sendDate: conversation.sendDate,
-                            message: conversation.message
-                        };
-                    }));
-                } else {
-                    res.sendStatus(500);
-                }
+            if (!err) {
+                res.json(docs.map(function(conversation) {
+                    return {
+                        senderId: conversation.senderId,
+                        sendToId: conversation.sendToId,
+                        sendDate: conversation.sendDate,
+                        message: conversation.message
+                    };
+                }));
+            } else {
+                res.sendStatus(500);
+            }
         });
     });
 
