@@ -75,6 +75,7 @@
 <section ng-show="loggedIn" class="col-md-7 nopad">
     <div class="col-md-offset-1">
         <h2>Chat Window</h2>
+        <h4 ng-if="currentChatTarget">{{currentChatTarget.name}}</h4>
     </div>
     <div class="col-md-11 col-md-offset-1 container-fluid">
         <div ng-repeat="message in messages">
