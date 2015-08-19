@@ -8,6 +8,8 @@
         $scope.currentChatTarget = "";
         $scope.textarea = document.getElementById("chatarea");
         $scope.intervalSet = false;
+        $scope.lastNumberMessages = "";
+        $scope.missedMessages = "";
 
         $http.get("/api/user").then(function(userResult) {
             $scope.loggedIn = true;
@@ -15,6 +17,7 @@
             $http.get("/api/users").then(function(result) {
                 $scope.users = result.data;
                 $scope.startUsersInterval();
+                $scope.startAllMessageInterval();
             });
         }, function() {
             $http.get("/api/oauth/uri").then(function(result) {
@@ -30,6 +33,8 @@
                 $scope.newMessage = "";
                 $scope.allMessageString = "";
                 $scope.getMessages($scope.currentChatTarget);
+                $scope.getAllMessages();
+                $scope.clearNotifications();
             }, function (response) {
                 $scope.errorText = "Failed to send message. Reason: " + response.status + " - " + response.responseText;
             });
@@ -67,34 +72,55 @@
                 $scope.formattedDate = new Date (message.sendDate).toUTCString().slice(0, 16);
                 message.formattedTime = new Date (message.sendDate).toUTCString().slice(17, 25);
                 message.formattedDate = new Date (message.sendDate).toUTCString().slice(0, 16);
-
-                //$scope.messageString = $scope.formattedTime + " - " + message.senderId + ": " + message.message;
-                //$scope.messageArray.push($scope.messageString);
             });
             //$scope.allMessageString = $scope.messageArray.join("\n");
             $scope.previousDate = "";
+        };
+
+        $scope.getAllMessages = function() {
+            $http.get("/api/conversations/").then(function(result) {
+                $scope.allMessages = result.data;
+                $scope.numberOfMessages = $scope.allMessages.length;
+
+                if ($scope.numberOfMessages !== $scope.lastNumberMessages) {
+                    $scope.missedMessages = ($scope.numberOfMessages - $scope.lastNumberMessages);
+                }
+
+                //angular.element(window).bind("focus", function() {
+                //    console.log("enter");
+                //}).bind("blur", function() {
+                //    console.log("out");
+                //});
+            });
+        };
+
+        $scope.clearNotifications = function() {
+            $scope.lastNumberMessages = $scope.numberOfMessages;
         };
 
         $scope.startMessageInterval = function() {
             setInterval($scope.getMessages, 1000);
         };
 
+        $scope.startAllMessageInterval = function() {
+            setInterval($scope.getAllMessages, 1000);
+        };
+
         $scope.startUsersInterval = function () {
             setInterval($scope.getUsers, 5000);
         };
+    }); // END OF CONTROLLER
 
-        //$scope.deleteConversation = function () {
-        //    $http.delete("/api/conversations/")
-        //};
-
-        $scope.deleteTodo = function (todo) {
-            $http.delete("/api/todo/" + todo.id).then(function (response) {
-                $scope.getTodoList();
-            }, function (response) {
-                $scope.errorText = "Failed to delete todo list item with ID " +
-                    todo.id + ". Server returned " + response.status + " - " + response.statusText;
-            });
+    app.directive("scrollToLast", ["$location", "$anchorScroll", function($location, $anchorScroll) {
+        function linkFn(scope, element, attrs) {
+            $location.hash(attrs.scrollToLast);
+            $anchorScroll();
+        }
+        return {
+            restrict: "AE",
+            scope: {
+            },
+            link: linkFn
         };
-
-    });
+    }]);
 })();

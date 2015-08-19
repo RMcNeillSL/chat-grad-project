@@ -90,7 +90,24 @@ module.exports = function(port, db, githubAuthoriser) {
     });
 
     app.get("/api/conversations", function(req, res) {
+        var senderId = req.session.user;
 
+        conversations.find({
+            $or: [ { senderId: senderId  }, { sendToId: senderId } ]
+        }).toArray(function (err, docs) {
+            if (!err) {
+                res.json(docs.map(function(conversation) {
+                    return {
+                        senderId: conversation.senderId,
+                        sendToId: conversation.sendToId,
+                        sendDate: conversation.sendDate,
+                        message: conversation.message
+                    };
+                }));
+            } else {
+                res.sendStatus(500);
+            }
+        });
     });
 
     app.post("/api/conversations/:name", function(req, res) {
