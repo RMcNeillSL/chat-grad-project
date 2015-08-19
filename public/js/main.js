@@ -23,7 +23,7 @@
                 $scope.users = result.data;
                 $scope.loopCount = 0;
 
-                for(var i=0; i<$scope.users.length; i++) {
+                for (var i = 0; i < $scope.users.length; i++) {
                     $scope.users[i].active = false;
                     $scope.users[i].messageCount = 0;
                     $scope.users[i].newMessage = false;
@@ -56,12 +56,12 @@
                 $scope.tempUsers = result.data;
                 $scope.loopCount = 0;
 
-                for(var i=0; i<$scope.tempUsers.length; i++) {
+                for (var i = 0; i < $scope.tempUsers.length; i++) {
                     $scope.users[i].avatarUrl = $scope.tempUsers[i].avatarUrl;
                     $scope.users[i].id = $scope.tempUsers[i].id;
                     $scope.users[i].name = $scope.tempUsers[i].name;
 
-                    if($scope.users[i].active !== true) {
+                    if ($scope.users[i].active !== true) {
                         $scope.users[i].active = false;
                     }
                 }
@@ -108,7 +108,7 @@
                 $scope.allMessages = result.data;
                 $scope.numberOfMessages = $scope.allMessages.length;
 
-                if(!$scope.initialisation || $scope.clearNotif) {
+                if (!$scope.initialisation || $scope.clearNotif) {
                     $scope.initialisation = true;
                     $scope.clearNotif = false;
                     $scope.lastNumberMessages = $scope.numberOfMessages;
@@ -128,13 +128,12 @@
         $scope.countMessagesFromUser = function() {
             $scope.users.forEach(function(user) {
                 $scope.allMessages.forEach(function(message) {
-                    if(message.senderId === user.id) {
+                    if (message.senderId === user.id) {
                         $scope.tempMessageCount++;
                     }
                 });
                 if ((user.messageCount !== $scope.tempMessageCount) && (user.messageCount !== 0)) {
-                    if(!user.active)
-                    {
+                    if (!user.active) {
                         user.active = true;
                         $scope.activeChatCount++;
                     }
