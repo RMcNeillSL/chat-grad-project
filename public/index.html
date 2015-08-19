@@ -62,12 +62,13 @@
                     </tr>
                 </table>
             </div>
+
             <h2>Search Users</h2>
             <div class="col-md-12">
                 <input id="search-users" type="text" placeholder="Search users" ng-model="searchUsers" class="form-control">
             </div>
 
-            <h2>Registered Users</h2>
+            <h2>New Chat</h2>
             <div class="regUsers">
                 <table class="table table-striped" id="user-list">
                     <tr>
@@ -75,7 +76,7 @@
                         <th>User</th>
                         <th>Actions</th>
                     </tr>
-                    <tr ng-repeat="singleUser in users | filter:searchUsers" ng-if="singleUser.name != user.name">
+                    <tr ng-repeat="singleUser in users | filter: {active: false} | filter: {name: searchUsers}" ng-if="singleUser.name != user.name">
                         <td>
                             <img src={{singleUser.avatarUrl}} class="img-circle" alt="Cinque Terre" width="50" height="50">
                         </td>

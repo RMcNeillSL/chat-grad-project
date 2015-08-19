@@ -19,6 +19,12 @@
             $scope.user = userResult.data;
             $http.get("/api/users").then(function(result) {
                 $scope.users = result.data;
+                $scope.loopCount = 0;
+
+                for(var i=0; i<$scope.users.length; i++) {
+                        $scope.users[i].active = false;
+                }
+
             });
         }, function() {
             $http.get("/api/oauth/uri").then(function(result) {
@@ -50,6 +56,10 @@
                     $scope.users[i].avatarUrl = $scope.tempUsers[i].avatarUrl;
                     $scope.users[i].id = $scope.tempUsers[i].id;
                     $scope.users[i].name = $scope.tempUsers[i].name;
+
+                    if($scope.users[i].active !== true) {
+                        $scope.users[i].active = false;
+                    }
                 }
             });
         };
