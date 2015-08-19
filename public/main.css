@@ -135,3 +135,14 @@ h2 {
 .messageText {
     word-wrap: break-word;
 }
+
+.notification {
+    color: #FF0000
+}
+
+.bottom-right
+{
+    right: 0;
+    bottom: 0;
+    position: relative;
+}

@@ -13,6 +13,8 @@
         $scope.numberOfMessages = 0;
         $scope.missedMessages = 0;
         $scope.activeChatCount = 0;
+        $scope.allMessages = [];
+        $scope.tempMessageCount = 0;
 
         $http.get("/api/user").then(function(userResult) {
             $scope.loggedIn = true;
@@ -22,7 +24,10 @@
                 $scope.loopCount = 0;
 
                 for(var i=0; i<$scope.users.length; i++) {
-                        $scope.users[i].active = false;
+                    $scope.users[i].active = false;
+                    $scope.users[i].messageCount = 0;
+                    $scope.users[i].newMessage = false;
+                    $scope.users[i].newMessageCount = 0;
                 }
 
             });
@@ -47,7 +52,6 @@
         };
 
         $scope.getUsers = function() {
-            //console.log($scope.users);
             $http.get("/api/users").then(function(result) {
                 $scope.tempUsers = result.data;
                 $scope.loopCount = 0;
@@ -117,6 +121,29 @@
                     document.title = "The Speakeasy";
                     $scope.missedMessages = 0;
                 }
+            });
+            $scope.countMessagesFromUser();
+        };
+
+        $scope.countMessagesFromUser = function() {
+            $scope.users.forEach(function(user) {
+                $scope.allMessages.forEach(function(message) {
+                    if(message.senderId === user.id) {
+                        $scope.tempMessageCount++;
+                    }
+                });
+                if ((user.messageCount !== $scope.tempMessageCount) && (user.messageCount !== 0)) {
+                    if(!user.active)
+                    {
+                        user.active = true;
+                        $scope.activeChatCount++;
+                    }
+                    user.newMessage = true;
+                    user.newMessageCount = $scope.tempMessageCount - user.messageCount;
+                } else {
+                    user.messageCount = $scope.tempMessageCount;
+                }
+                $scope.tempMessageCount = 0;
             });
         };
 
