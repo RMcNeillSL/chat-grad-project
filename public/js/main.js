@@ -8,17 +8,17 @@
         $scope.currentChatTarget = "";
         $scope.textarea = document.getElementById("chatarea");
         $scope.intervalSet = false;
-        $scope.lastNumberMessages = "";
-        $scope.missedMessages = "0";
+        $scope.initialisation = false;
+        $scope.lastNumberMessages = 0;
+        $scope.numberOfMessages = 0;
+        $scope.missedMessages = 0;
+        $scope.activeChatCount = 0;
 
         $http.get("/api/user").then(function(userResult) {
             $scope.loggedIn = true;
             $scope.user = userResult.data;
             $http.get("/api/users").then(function(result) {
                 $scope.users = result.data;
-                $scope.startUsersInterval();
-                $scope.startAllMessageInterval();
-                $scope.clearNotifications();
             });
         }, function() {
             $http.get("/api/oauth/uri").then(function(result) {
@@ -34,16 +34,23 @@
                 $scope.newMessage = "";
                 $scope.allMessageString = "";
                 $scope.getMessages($scope.currentChatTarget);
-                $scope.getAllMessages();
-                $scope.clearNotifications();
+                $scope.lastNumberMessages++;
             }, function (response) {
                 $scope.errorText = "Failed to send message. Reason: " + response.status + " - " + response.responseText;
             });
         };
 
         $scope.getUsers = function() {
+            //console.log($scope.users);
             $http.get("/api/users").then(function(result) {
-                $scope.users = result.data;
+                $scope.tempUsers = result.data;
+                $scope.loopCount = 0;
+
+                for(var i=0; i<$scope.tempUsers.length; i++) {
+                    $scope.users[i].avatarUrl = $scope.tempUsers[i].avatarUrl;
+                    $scope.users[i].id = $scope.tempUsers[i].id;
+                    $scope.users[i].name = $scope.tempUsers[i].name;
+                }
             });
         };
 
@@ -52,13 +59,17 @@
             if (!user) {
                 $scope.id = $scope.currentChatTarget.id;
             } else {
+                user.active = true;
                 $scope.id = user.id;
                 $scope.currentChatTarget = user;
+                $scope.activeChatCount++;
             }
+
             $http.get("/api/conversations/" + $scope.id).then(function(result) {
                 $scope.allMessageString = "";
                 $scope.messageArray = [];
                 $scope.messages = result.data;
+                $scope.numberOfMessages = $scope.messages.length;
                 $scope.convertMessages();
 
                 if ($scope.intervalSet === false) {
@@ -83,22 +94,24 @@
                 $scope.allMessages = result.data;
                 $scope.numberOfMessages = $scope.allMessages.length;
 
-                if ($scope.numberOfMessages !== $scope.lastNumberMessages) {
-                    $scope.missedMessages = ($scope.numberOfMessages - $scope.lastNumberMessages);
-                } else {
-                    $scope.missedMessages = "";
+                if(!$scope.initialisation || $scope.clearNotif) {
+                    $scope.initialisation = true;
+                    $scope.clearNotif = false;
+                    $scope.lastNumberMessages = $scope.numberOfMessages;
                 }
 
-                //angular.element(window).bind("focus", function() {
-                //    console.log("enter");
-                //}).bind("blur", function() {
-                //    console.log("out");
-                //});
+                if ($scope.numberOfMessages !== $scope.lastNumberMessages) {
+                    $scope.missedMessages = ($scope.numberOfMessages - $scope.lastNumberMessages);
+                    document.title = "The Speakeasy (" + $scope.missedMessages + ")";
+                } else {
+                    document.title = "The Speakeasy";
+                    $scope.missedMessages = 0;
+                }
             });
         };
 
         $scope.clearNotifications = function() {
-            $scope.lastNumberMessages = $scope.numberOfMessages;
+            $scope.clearNotif = true;
         };
 
         $scope.startMessageInterval = function() {
@@ -112,6 +125,10 @@
         $scope.startUsersInterval = function () {
             setInterval($scope.getUsers, 5000);
         };
+
+        $scope.startUsersInterval();
+        $scope.startAllMessageInterval();
+
     }); // END OF CONTROLLER
 
     app.directive("scrollToLast", ["$location", "$anchorScroll", function($location, $anchorScroll) {
