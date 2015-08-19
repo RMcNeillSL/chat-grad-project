@@ -9,7 +9,7 @@
         $scope.textarea = document.getElementById("chatarea");
         $scope.intervalSet = false;
         $scope.lastNumberMessages = "";
-        $scope.missedMessages = "";
+        $scope.missedMessages = "0";
 
         $http.get("/api/user").then(function(userResult) {
             $scope.loggedIn = true;
@@ -18,6 +18,7 @@
                 $scope.users = result.data;
                 $scope.startUsersInterval();
                 $scope.startAllMessageInterval();
+                $scope.clearNotifications();
             });
         }, function() {
             $http.get("/api/oauth/uri").then(function(result) {
@@ -84,6 +85,8 @@
 
                 if ($scope.numberOfMessages !== $scope.lastNumberMessages) {
                     $scope.missedMessages = ($scope.numberOfMessages - $scope.lastNumberMessages);
+                } else {
+                    $scope.missedMessages = "";
                 }
 
                 //angular.element(window).bind("focus", function() {
@@ -103,7 +106,7 @@
         };
 
         $scope.startAllMessageInterval = function() {
-            setInterval($scope.getAllMessages, 1000);
+            setInterval($scope.getAllMessages, 5000);
         };
 
         $scope.startUsersInterval = function () {
