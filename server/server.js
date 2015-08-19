@@ -93,7 +93,7 @@ module.exports = function(port, db, githubAuthoriser) {
         var senderId = req.session.user;
 
         conversations.find({
-            $or: [ { senderId: senderId  }, { sendToId: senderId } ]
+            $or: [{senderId: senderId}, {sendToId: senderId}]
         }).toArray(function (err, docs) {
             if (!err) {
                 res.json(docs.map(function(conversation) {
