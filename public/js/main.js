@@ -21,6 +21,8 @@
             $scope.socket.on("message", function(message) {
                 $scope.targetChatMessages.push(message);
                 $scope.convertMessages();
+                $scope.countMessagesFromUser();
+                //$scope.numberOfChatMessages = $scope.targetChatMessages.length;
             });
         };
 
@@ -51,7 +53,6 @@
                 "body": newMessage
             }).then(function (response) {
                 $scope.newMessage = "";
-                //$scope.getMessages($scope.currentChatTarget);
                 $scope.lastNumberMessages++;
             }, function (response) {
                 $scope.errorText = "Failed to send message. Reason: " + response.status + " - " + response.responseText;
@@ -75,33 +76,34 @@
             });
         };
 
+        $scope.setActiveChat = function(user) {
+            user.active = true;
+            $scope.currentChatTarget = user;
+            $scope.activeChatCount++;
+            user.newMessage = false;
+            //$scope.missedMessageReset = true;
+            $scope.missedMessages = $scope.missedMessages - user.newMessageCount;
+            $scope.lastNumberMessages = $scope.lastNumberMessages + user.newMessageCount;
+            user.newMessageCount = 0;
+            user.messageCount = 0;
+            $scope.getMessages(user);
+            $scope.countMessagesFromUser();
+            $scope.socketStartChat(user);
+        };
+
         $scope.getMessages = function(user) {
             $scope.id = "";
             if (!user) {
                 $scope.id = $scope.currentChatTarget.id;
             } else {
-                user.active = true;
                 $scope.id = user.id;
                 $scope.currentChatTarget = user;
-                $scope.activeChatCount++;
-                user.newMessage = false;
-                $scope.missedMessageReset = true;
-                $scope.missedMessages = $scope.missedMessages - user.newMessageCount;
-                $scope.lastNumberMessages = $scope.lastNumberMessages + user.newMessageCount;
-                user.newMessageCount = 0;
-                user.messageCount = 0;
-                $scope.countMessagesFromUser();
             }
 
             $http.get("/api/conversations/" + $scope.id).then(function(result) {
                 $scope.targetChatMessages = result.data;
                 $scope.numberOfMessages = $scope.targetChatMessages.length;
                 $scope.convertMessages();
-
-                if ($scope.intervalSet === false) {
-                    $scope.startMessageInterval();
-                    $scope.intervalSet = true;
-                }
             });
         };
 
@@ -111,7 +113,6 @@
                 message.formattedTime = new Date (message.sendDate).toUTCString().slice(17, 25);
                 message.formattedDate = new Date (message.sendDate).toUTCString().slice(0, 16);
             });
-            $scope.previousDate = "";
         };
 
         $scope.getAllMessages = function() {
@@ -125,15 +126,22 @@
                     $scope.lastNumberMessages = $scope.numberOfMessages;
                 }
 
-                if (($scope.numberOfMessages !== $scope.lastNumberMessages) && !$scope.missedMessageReset) {
-                    $scope.missedMessages = ($scope.numberOfMessages - $scope.lastNumberMessages);
+                if ($scope.missedMessages) {
+                    //$scope.missedMessages = ($scope.numberOfMessages - $scope.lastNumberMessages);
                     document.title = "The Speakeasy (" + $scope.missedMessages + ")";
                 } else {
                     document.title = "The Speakeasy";
-                    $scope.missedMessageReset = false;
                 }
             });
             $scope.countMessagesFromUser();
+        };
+
+        $scope.countMissedMessages = function() {
+            $scope.tempMissedMessages = 0;
+            $scope.users.forEach(function(user) {
+                $scope.tempMissedMessages = $scope.tempMissedMessages + user.newMessageCount;
+            });
+            $scope.missedMessages = $scope.tempMissedMessages;
         };
 
         $scope.countMessagesFromUser = function() {
@@ -143,7 +151,7 @@
                         $scope.tempMessageCount++;
                     }
                 });
-                if ((user.messageCount !== $scope.tempMessageCount) && (user.messageCount !== 0)) {
+                if ((user.messageCount !== $scope.tempMessageCount) && (user.messageCount !== 0) && (user.id !== $scope.user._id)) {
                     if (!user.active) {
                         user.active = true;
                         $scope.activeChatCount++;
@@ -161,10 +169,6 @@
             $scope.clearNotif = true;
         };
 
-        $scope.startMessageInterval = function() {
-            //setInterval($scope.getMessages, 1000);
-        };
-
         $scope.startAllMessageInterval = function() {
             setInterval($scope.getAllMessages, 2000);
         };
@@ -172,6 +176,8 @@
         $scope.startUsersInterval = function () {
             setInterval($scope.getUsers, 5000);
         };
+
+        setInterval($scope.countMissedMessages, 10000);
 
         $scope.socketSendMessage = function(newMessage) {
             var message = {
@@ -181,11 +187,13 @@
                 message: newMessage
             };
             $scope.socket.emit("message", message);
+            $scope.newMessage = "";
+            $scope.lastNumberMessages++;
         };
 
-        $scope.socketStartChat = function(singleUser) {
-            $scope.socket.emit("start chat", singleUser.id);
-            $scope.getMessages(singleUser);
+        $scope.socketStartChat = function(user) {
+            $scope.socket.emit("start chat", user.id);
+            $scope.getMessages(user);
         };
 
         $scope.startUsersInterval();

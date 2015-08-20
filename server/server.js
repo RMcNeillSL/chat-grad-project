@@ -20,7 +20,7 @@ module.exports = function(port, db, githubAuthoriser) {
 
     io.on("connection", function(socket) {
         console.log(socket.handshake.query.userid, ": Connected");
-        socket.join(socket.handshake.query.userid);
+        //socket.join(socket.handshake.query.userid);
 
         socket.on("disconnect", function () {
             console.log(socket.handshake.query.userid, ": Disconnected");

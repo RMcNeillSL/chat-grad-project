@@ -68,7 +68,7 @@
                             0 new
                         </td>
                         <td style="vertical-align:middle">
-                            <button ng-click="getMessages(singleUser)" id="start-chat" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-user"></span> Chat</button>
+                            <button ng-click="setActiveChat(singleUser)" id="start-chat" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-user"></span> Chat</button>
                         </td>
                     </tr>
                 </table>
@@ -98,7 +98,7 @@
                             {{singleUser.id}}
                         </td>
                         <td style="vertical-align:middle">
-                            <button ng-click="socketStartChat(singleUser)" id="start-chat" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-user"></span> Chat</button>
+                            <button ng-click="setActiveChat(singleUser)" id="start-chat" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-user"></span> Chat</button>
                         </td>
                     </tr>
                 </table>
