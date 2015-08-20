@@ -4,7 +4,8 @@ var bodyParser = require("body-parser");
 
 module.exports = function(port, db, githubAuthoriser) {
     var app = express();
-
+    var http = require('http').Server(app);
+    var io = require('socket.io')(http);
     app.use(express.static("public"));
     app.use(cookieParser());
     app.use(bodyParser.json());
@@ -12,6 +13,24 @@ module.exports = function(port, db, githubAuthoriser) {
     var users = db.collection("users-rmcneill");
     var conversations = db.collection("conversations-rmcneill");
     var sessions = {};
+
+    app.get('/', function(req, res){
+        res.sendFile(__dirname + '/index.html');
+    });
+
+    io.on('connection', function(socket){
+        console.log('a user connected');
+        socket.on('disconnect', function(){
+            console.log('user disconnected');
+        });
+        socket.on('chat message', function(msg){
+            io.emit('chat message', msg);
+        });
+    });
+
+    http.listen(3000, function(){
+        console.log('listening on port 3000');
+    });
 
     app.get("/oauth", function(req, res) {
         githubAuthoriser.authorise(req, function(githubUser, token) {
