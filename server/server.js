@@ -14,22 +14,37 @@ module.exports = function(port, db, githubAuthoriser) {
     var conversations = db.collection("conversations-rmcneill");
     var sessions = {};
 
-    app.get('/', function(req, res){
-        res.sendFile(__dirname + '/index.html');
+    app.get("/", function(req, res){
+        res.sendFile(__dirname + "/index.html");
     });
 
-    io.on('connection', function(socket){
-        console.log('a user connected');
-        socket.on('disconnect', function(){
-            console.log('user disconnected');
+    io.on("connection", function(socket) {
+        console.log(socket.handshake.query.userid, ": Connected");
+        socket.join(socket.handshake.query.userid);
+
+        socket.on("disconnect", function () {
+            console.log(socket.handshake.query.userid, ": Disconnected");
         });
-        socket.on('chat message', function(msg){
-            io.emit('chat message', msg);
+
+        socket.on("start chat", function (chatTarget) {
+            socket.join(chatTarget);
+            console.log(socket.handshake.query.userid, "joined chat with", chatTarget);
+        });
+
+        socket.on("message", function (message) {
+            io.to(message.sendToId).emit("message", message);
+
+            conversations.insertOne({
+                senderId: socket.handshake.query.userid,
+                sendToId: message.sendToId,
+                sendDate: message.sendDate,
+                message: message.message
+            });
         });
     });
 
-    http.listen(3000, function(){
-        console.log('listening on port 3000');
+    http.listen(8080, function(){
+        console.log("Chat listening on port 8080");
     });
 
     app.get("/oauth", function(req, res) {
@@ -167,6 +182,4 @@ module.exports = function(port, db, githubAuthoriser) {
             }
         });
     });
-
-    return app.listen(port);
 };

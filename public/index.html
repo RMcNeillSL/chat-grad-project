@@ -1,40 +1,157 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en" ng-app="ChatApp">
 
 <head>
-    <title>Socket.IO chat</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font: 13px Helvetica, Arial; }
-        form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
-        form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
-        form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
-        #messages { list-style-type: none; margin: 0; padding: 0; }
-        #messages li { padding: 5px 10px; }
-        #messages li:nth-child(odd) { background: #eee; }
-    </style>
-</head>
-
-<body>
-    <ul id="messages"></ul>
-    <form action="">
-        <input id="m" autocomplete="off" /><button>Send</button>
-    </form>
-
+    <meta charset="utf-8">
+    <title>The Speakeasy</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-route.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-resource.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <script src="js/main.js"></script>
     <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
     <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+</head>
 
-    <script>
-        var socket = io();
-        $('form').submit(function(){
-            socket.emit('chat message', $('#m').val());
-            $('#m').val('');
-            return false;
-        });
-        socket.on('chat message', function(msg){
-            $('#messages').append($('<li>').text(msg));
-        });
-    </script>
+<section class="col-md-5 nopad">
+    <body ng-controller="ChatController">
+        <a ng-show="!loggedIn" href="{{loginUri}}" class="btn btn-success btn-lg"><span class="glyphicon glyphicon-lock"></span> Log in</a>
+        <section ng-show="loggedIn">
+            <h2>Current User</h2>
+            <table class="table table-striped" id="current-user">
+                <tr>
+                    <th>Avatar</th>
+                    <th>User</th>
+                    <th>Actions</th>
+                </tr>
+                <tr>
+                    <td>
+                        <img src={{user.avatarUrl}} class="img-circle" alt="Cinque Terre" width="50" height="50">
+                    </td>
+                    <td style="vertical-align:middle" ng-if="user.name">
+                        {{user.name}}
+                    </td>
+                    <td style="vertical-align:middle" ng-if="!user.name">
+                        {{user._id}}
+                    </td>
+                    <td style="vertical-align:middle">
+                        <button ng-click="clearNotifications()" id="clear-notif" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-user"></span> Clear Notifications</button>
+                    </td>
+                </tr>
+            </table>
 
-</body>
+            <h2 ng-if="activeChatCount && !missedMessages">Active Chats</h2>
+            <h2 ng-if="activeChatCount && missedMessages===1">Active Chats ({{missedMessages}} new message)</h2>
+            <h2 ng-if="activeChatCount && missedMessages>1">Active Chats ({{missedMessages}} new messages)</h2>
+            <div class="activeChats" ng-if="activeChatCount">
+                <table class="table table-striped" id="active-chat-list">
+                    <tr>
+                        <th>Avatar</th>
+                        <th>User</th>
+                        <th></th>
+                        <th>Actions</th>
+                    </tr>
+                    <tr ng-repeat="singleUser in users | filter: {active: true}" ng-if="singleUser.name != user.name">
+                        <td>
+                            <img src={{singleUser.avatarUrl}} class="img-circle" alt="Cinque Terre" width="50" height="50">
+                        </td>
+                        <td style="vertical-align:middle" ng-if="singleUser.name">
+                            {{singleUser.name}}
+                        </td>
+                        <td style="vertical-align:middle" ng-if="!singleUser.name">
+                            {{singleUser.id}}
+                        </td>
+                        <td style="vertical-align:middle" class="notification" ng-if="singleUser.newMessageCount">
+                            {{singleUser.newMessageCount}} new!
+                        </td>
+                        <td style="vertical-align:middle" ng-if="!singleUser.newMessageCount">
+                            0 new
+                        </td>
+                        <td style="vertical-align:middle">
+                            <button ng-click="getMessages(singleUser)" id="start-chat" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-user"></span> Chat</button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <h2>Search Users</h2>
+            <div class="col-md-12">
+                <input id="search-users" type="text" placeholder="Search users" ng-model="searchUsers" class="form-control">
+            </div>
+
+            <h2>Start New Chat</h2>
+            <div class="regUsers">
+                <table class="table table-striped" id="user-list">
+                    <tr>
+                        <th>Avatar</th>
+                        <th>User</th>
+                        <th>Actions</th>
+                    </tr>
+                    <tr ng-repeat="singleUser in users | filter: {active: false} | filter: {name: searchUsers}" ng-if="singleUser.name != user.name">
+                        <td>
+                            <img src={{singleUser.avatarUrl}} class="img-circle" alt="Cinque Terre" width="50" height="50">
+                        </td>
+                        <td style="vertical-align:middle" ng-if="singleUser.name">
+                            {{singleUser.name}}
+                        </td>
+                        <td style="vertical-align:middle" ng-if="!singleUser.name">
+                            {{singleUser.id}}
+                        </td>
+                        <td style="vertical-align:middle">
+                            <button ng-click="socketStartChat(singleUser)" id="start-chat" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-user"></span> Chat</button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </section>
+    </body>
+</section>
+
+<section ng-show="loggedIn" class="col-md-7 nopad">
+    <div class="col-md-offset-1">
+        <h2>Chat Window</h2>
+        <h4 ng-if="currentChatTarget">{{currentChatTarget.name}}</h4>
+    </div>
+    <div class="col-md-11 col-md-offset-1 container-fluid">
+        <div ng-repeat="message in targetChatMessages" id="post-{{ ::$index }}" scroll-to-last="post-{{ ::$index }}">
+            <div class="row receivedMessage" ng-if="message.senderId != user._id">
+                <div class="col-md-1 nopad messageAvatar" style="vertical-align:middle">
+                    <img src={{currentChatTarget.avatarUrl}} class="img-circle center-block" alt="Cinque Terre" width="50" height="50" ng-if="message.senderId != user._id">
+                    <img src={{user.avatarUrl}} class="img-circle center-block" alt="Cinque Terre" width="50" height="50" ng-if="message.senderId == user._id">
+                </div>
+                <div class="col-md-2 nopad">
+                    <p class="messageSender nopad">{{message.senderId}}</p>
+                    <p class="messageTime nopad">{{message.formattedTime}}</p>
+                </div>
+                <div class="col-md-9 messageText" style="vertical-align:middle">
+                    {{message.message}}
+                </div>
+            </div>
+            <div class="row sentMessage" ng-if="message.senderId == user._id">
+                <div class="col-md-9 messageText" style="vertical-align:middle">
+                    {{message.message}}
+                </div>
+                <div class="col-md-2 nopad">
+                    <p class="messageSender nopad">{{message.senderId}}</p>
+                    <p class="messageTime nopad">{{message.formattedTime}}</p>
+                </div>
+                <div class="col-md-1 nopad messageAvatar" style="vertical-align:middle">
+                    <img src={{currentChatTarget.avatarUrl}} class="img-circle center-block" alt="Cinque Terre" width="45" height="45" ng-if="message.senderId != user._id">
+                    <img src={{user.avatarUrl}} class="img-circle center-block" alt="Cinque Terre" width="45" height="45" ng-if="message.senderId == user._id">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-9 col-md-offset-1">
+            <form ng-submit="socketSendMessage(newMessage)">
+                <input type="text" placeholder="What would you like to say?" ng-model="newMessage" id="new-message" class="form-control nopad">
+            </form>
+        </div>
+        <div class="col-md-2">
+            <button ng-click="socketSendMessage(newMessage)" id="create-chat" class="btn btn-primary btn-block"><span class="glyphicon glyphicon-send"></span> Send</button>
+        </div>
+    </div>
+</section>
+    <link href="main.css" rel="stylesheet" type="text/css">
 </html>

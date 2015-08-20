@@ -3,10 +3,7 @@
 
     app.controller("ChatController", function($scope, $http) {
         $scope.loggedIn = false;
-        $scope.messageArray = [];
-        $scope.allMessageString = "";
         $scope.currentChatTarget = "";
-        $scope.textarea = document.getElementById("chatarea");
         $scope.intervalSet = false;
         $scope.initialisation = false;
         $scope.lastNumberMessages = 0;
@@ -16,6 +13,16 @@
         $scope.allMessages = [];
         $scope.tempMessageCount = 0;
         $scope.missedMessageReset = false;
+        $scope.targetChatMessages = [];
+
+        $scope.getSocket = function() {
+            $scope.socket = io.connect("", {query: "userid=" + $scope.user._id});
+
+            $scope.socket.on("message", function(message) {
+                $scope.targetChatMessages.push(message);
+                $scope.convertMessages();
+            });
+        };
 
         $http.get("/api/user").then(function(userResult) {
             $scope.loggedIn = true;
@@ -30,7 +37,7 @@
                     $scope.users[i].newMessage = false;
                     $scope.users[i].newMessageCount = 0;
                 }
-
+                $scope.getSocket();
             });
         }, function() {
             $http.get("/api/oauth/uri").then(function(result) {
@@ -44,8 +51,7 @@
                 "body": newMessage
             }).then(function (response) {
                 $scope.newMessage = "";
-                $scope.allMessageString = "";
-                $scope.getMessages($scope.currentChatTarget);
+                //$scope.getMessages($scope.currentChatTarget);
                 $scope.lastNumberMessages++;
             }, function (response) {
                 $scope.errorText = "Failed to send message. Reason: " + response.status + " - " + response.responseText;
@@ -88,10 +94,8 @@
             }
 
             $http.get("/api/conversations/" + $scope.id).then(function(result) {
-                $scope.allMessageString = "";
-                $scope.messageArray = [];
-                $scope.messages = result.data;
-                $scope.numberOfMessages = $scope.messages.length;
+                $scope.targetChatMessages = result.data;
+                $scope.numberOfMessages = $scope.targetChatMessages.length;
                 $scope.convertMessages();
 
                 if ($scope.intervalSet === false) {
@@ -102,12 +106,11 @@
         };
 
         $scope.convertMessages = function() {
-            $scope.messages.forEach(function(message) {
+            $scope.targetChatMessages.forEach(function(message) {
                 $scope.formattedDate = new Date (message.sendDate).toUTCString().slice(0, 16);
                 message.formattedTime = new Date (message.sendDate).toUTCString().slice(17, 25);
                 message.formattedDate = new Date (message.sendDate).toUTCString().slice(0, 16);
             });
-            //$scope.allMessageString = $scope.messageArray.join("\n");
             $scope.previousDate = "";
         };
 
@@ -159,7 +162,7 @@
         };
 
         $scope.startMessageInterval = function() {
-            setInterval($scope.getMessages, 1000);
+            //setInterval($scope.getMessages, 1000);
         };
 
         $scope.startAllMessageInterval = function() {
@@ -168,6 +171,21 @@
 
         $scope.startUsersInterval = function () {
             setInterval($scope.getUsers, 5000);
+        };
+
+        $scope.socketSendMessage = function(newMessage) {
+            var message = {
+                senderId: $scope.user._id,
+                sendToId: $scope.currentChatTarget.id,
+                sendDate: Date.now(),
+                message: newMessage
+            };
+            $scope.socket.emit("message", message);
+        };
+
+        $scope.socketStartChat = function(singleUser) {
+            $scope.socket.emit("start chat", singleUser.id);
+            $scope.getMessages(singleUser);
         };
 
         $scope.startUsersInterval();

@@ -7,7 +7,6 @@ body {
 }
 
 header {
-    /*background-color: #1484D5;*/
     padding: 0.5em 1em;
     color: #000000;
     font-family: 'Raleway', sans-serif;
@@ -140,8 +139,7 @@ h2 {
     color: #FF0000
 }
 
-.bottom-right
-{
+.bottom-right {
     right: 0;
     bottom: 0;
     position: relative;
