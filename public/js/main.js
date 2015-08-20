@@ -15,6 +15,7 @@
         $scope.activeChatCount = 0;
         $scope.allMessages = [];
         $scope.tempMessageCount = 0;
+        $scope.missedMessageReset = false;
 
         $http.get("/api/user").then(function(userResult) {
             $scope.loggedIn = true;
@@ -77,6 +78,13 @@
                 $scope.id = user.id;
                 $scope.currentChatTarget = user;
                 $scope.activeChatCount++;
+                user.newMessage = false;
+                $scope.missedMessageReset = true;
+                $scope.missedMessages = $scope.missedMessages - user.newMessageCount;
+                $scope.lastNumberMessages = $scope.lastNumberMessages + user.newMessageCount;
+                user.newMessageCount = 0;
+                user.messageCount = 0;
+                $scope.countMessagesFromUser();
             }
 
             $http.get("/api/conversations/" + $scope.id).then(function(result) {
@@ -114,12 +122,12 @@
                     $scope.lastNumberMessages = $scope.numberOfMessages;
                 }
 
-                if ($scope.numberOfMessages !== $scope.lastNumberMessages) {
+                if (($scope.numberOfMessages !== $scope.lastNumberMessages) && !$scope.missedMessageReset) {
                     $scope.missedMessages = ($scope.numberOfMessages - $scope.lastNumberMessages);
                     document.title = "The Speakeasy (" + $scope.missedMessages + ")";
                 } else {
                     document.title = "The Speakeasy";
-                    $scope.missedMessages = 0;
+                    $scope.missedMessageReset = false;
                 }
             });
             $scope.countMessagesFromUser();
@@ -155,7 +163,7 @@
         };
 
         $scope.startAllMessageInterval = function() {
-            setInterval($scope.getAllMessages, 5000);
+            setInterval($scope.getAllMessages, 2000);
         };
 
         $scope.startUsersInterval = function () {
