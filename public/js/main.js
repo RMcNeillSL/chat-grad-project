@@ -19,11 +19,15 @@
             $scope.socket = io.connect("", {query: "userid=" + $scope.user._id});
 
             $scope.socket.on("message", function(message) {
+                message.formattedTime = new Date (message.sendDate).toUTCString().slice(17, 25);
+                message.formattedDate = new Date (message.sendDate).toUTCString().slice(0, 16);
+
                 if(message.senderId === $scope.currentChatTarget.id || message.senderId === $scope.user._id) {
                     $scope.targetChatMessages.push(message);
                 }
+
                 $scope.allMessages.push(message);
-                $scope.convertMessages();
+                //$scope.convertDates();
                 $scope.countMessagesFromUser();
             });
         };
@@ -92,11 +96,11 @@
             $http.get("/api/conversations/" + $scope.id).then(function(result) {
                 $scope.targetChatMessages = result.data;
                 $scope.numberOfMessages = $scope.targetChatMessages.length;
-                $scope.convertMessages();
+                $scope.convertDates();
             });
         };
 
-        $scope.convertMessages = function() {
+        $scope.convertDates = function() {
             $scope.targetChatMessages.forEach(function(message) {
                 $scope.formattedDate = new Date (message.sendDate).toUTCString().slice(0, 16);
                 message.formattedTime = new Date (message.sendDate).toUTCString().slice(17, 25);
