@@ -4,8 +4,8 @@ var bodyParser = require("body-parser");
 
 module.exports = function(port, db, githubAuthoriser) {
     var app = express();
-    var http = require('http').Server(app);
-    var io = require('socket.io')(http);
+    var http = require("http").Server(app);
+    var io = require("socket.io")(http);
     app.use(express.static("public"));
     app.use(cookieParser());
     app.use(bodyParser.json());
@@ -14,13 +14,13 @@ module.exports = function(port, db, githubAuthoriser) {
     var conversations = db.collection("conversations-rmcneill");
     var sessions = {};
 
-    app.get("/", function(req, res){
+    app.get("/", function(req, res) {
         res.sendFile(__dirname + "/index.html");
     });
 
     io.on("connection", function(socket) {
         console.log(socket.handshake.query.userid, ": Connected");
-        //socket.join(socket.handshake.query.userid);
+        socket.join(socket.handshake.query.userid);
 
         socket.on("disconnect", function () {
             console.log(socket.handshake.query.userid, ": Disconnected");
@@ -43,7 +43,7 @@ module.exports = function(port, db, githubAuthoriser) {
         });
     });
 
-    http.listen(8080, function(){
+    http.listen(8080, function() {
         console.log("Chat listening on port 8080");
     });
 

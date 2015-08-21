@@ -151,7 +151,8 @@
                         $scope.tempMessageCount++;
                     }
                 });
-                if ((user.messageCount !== $scope.tempMessageCount) && (user.messageCount !== 0) && (user.id !== $scope.user._id)) {
+                if ((user.messageCount !== $scope.tempMessageCount) && (user.messageCount !== 0) &&
+                        (user.id !== $scope.user._id)) {
                     if (!user.active) {
                         user.active = true;
                         $scope.activeChatCount++;
