@@ -16,19 +16,23 @@
         $scope.targetChatMessages = [];
 
         $scope.getSocket = function() {
-            $scope.socket = io.connect("", {query: "userid=" + $scope.user._id});
+            $scope.socket = io.connect("", {query: "userId=" + $scope.user._id});
 
             $scope.socket.on("message", function(message) {
                 message.formattedTime = new Date (message.sendDate).toUTCString().slice(17, 25);
                 message.formattedDate = new Date (message.sendDate).toUTCString().slice(0, 16);
 
-                if(message.senderId === $scope.currentChatTarget.id || message.senderId === $scope.user._id) {
+                if (message.senderId === $scope.currentChatTarget.id || message.senderId === $scope.user._id) {
                     $scope.targetChatMessages.push(message);
                 }
-
                 $scope.allMessages.push(message);
-                //$scope.convertDates();
                 $scope.countMessagesFromUser();
+            });
+
+            $scope.socket.on("delete complete", function(deletedUserId) {
+                var alertString = "Conversation with " + deletedUserId + " deleted successfully!";
+                $scope.getMessages();
+                alert(alertString);
             });
         };
 
@@ -182,14 +186,17 @@
                 message: newMessage
             };
 
+            message.formattedTime = new Date (message.sendDate).toUTCString().slice(17, 25);
+            message.formattedDate = new Date (message.sendDate).toUTCString().slice(0, 16);
+            $scope.targetChatMessages.push(message);
             $scope.socket.emit("message", message);
+
             $scope.newMessage = "";
             $scope.lastNumberMessages++;
         };
 
-        $scope.socketStartChat = function(user) {
-            $scope.socket.emit("start chat", user.id);
-            $scope.getMessages(user);
+        $scope.deleteChat = function() {
+            $scope.socket.emit("delete", $scope.currentChatTarget.id);
         };
 
         $scope.startUsersInterval();

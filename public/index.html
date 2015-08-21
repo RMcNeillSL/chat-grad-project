@@ -108,11 +108,18 @@
 </section>
 
 <section ng-show="loggedIn" class="col-md-7 nopad">
+
     <div class="col-md-offset-1">
         <h2 ng-if="currentChatTarget">Chat Window</h2>
         <h2 ng-if="!currentChatTarget">Click on a user to begin chat</h2>
-        <h4 ng-if="currentChatTarget">{{currentChatTarget.name}}</h4>
     </div>
+    <div class="row">
+        <div class="col-md-offset-1" style="font-size:20px; padding-left:15px" ng-if="currentChatTarget">
+            Conversation with: {{currentChatTarget.name}}
+            <button ng-click="deleteChat()" id="delete-chat" class="delete-btn btn-danger btn-sm"><span class="glyphicon glyphicon-trash"></span> Clear Conversation</button>
+        </div>
+    </div>
+
     <div class="col-md-11 col-md-offset-1 container-fluid" ng-if="currentChatTarget">
         <div ng-repeat="message in targetChatMessages" id="post-{{ ::$index }}" scroll-to-last="post-{{ ::$index }}">
             <div class="row receivedMessage" ng-if="message.senderId != user._id">

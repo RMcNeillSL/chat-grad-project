@@ -58,6 +58,13 @@ h2 {
     float: right;
 }
 
+.delete-btn {
+    margin: 0px;
+    margin-right: 30px;
+    margin-bottom: 5px;
+    float: right;
+}
+
 .table-striped{
     font-family: 'Raleway', sans-serif;
     font-size: 20px;

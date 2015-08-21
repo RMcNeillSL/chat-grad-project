@@ -19,23 +19,31 @@ module.exports = function(port, db, githubAuthoriser) {
     });
 
     io.on("connection", function(socket) {
-        console.log(socket.handshake.query.userid, ": Connected");
-        socket.join(socket.handshake.query.userid);
+        console.log(socket.handshake.query.userId, ": Connected");
+        socket.join(socket.handshake.query.userId);
 
         socket.on("disconnect", function () {
-            console.log(socket.handshake.query.userid, ": Disconnected");
+            console.log(socket.handshake.query.userId, ": Disconnected");
         });
 
         socket.on("message", function (message) {
             io.to(message.sendToId).emit("message", message);
-            io.to(message.senderId).emit("message", message);
 
             conversations.insertOne({
-                senderId: socket.handshake.query.userid,
+                senderId: socket.handshake.query.userId,
                 sendToId: message.sendToId,
                 sendDate: message.sendDate,
                 message: message.message
             });
+        });
+
+        socket.on("delete", function (userId) {
+            console.log("Received delete instruction for:", userId, " from:", socket.handshake.query.userId);
+            conversations.remove ({
+                senderId: {$in: [socket.handshake.query.userId, userId]},
+                sendToId: {$in: [socket.handshake.query.userId, userId]}
+            });
+            io.to(socket.handshake.query.userId).emit("delete complete", userId);
         });
     });
 
