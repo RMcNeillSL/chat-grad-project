@@ -14,7 +14,6 @@
         $scope.tempMessageCount = 0;
         $scope.missedMessageReset = false;
         $scope.targetChatMessages = [];
-        $scope.newMessage;
 
         $scope.getSocket = function() {
             $scope.socket = io.connect("", {query: "userid=" + $scope.user._id});
@@ -22,8 +21,9 @@
             $scope.socket.on("message", function(message) {
                 if(message.senderId === $scope.currentChatTarget.id || message.senderId === $scope.user._id) {
                     $scope.targetChatMessages.push(message);
-                    $scope.convertMessages();
                 }
+                $scope.allMessages.push(message);
+                $scope.convertMessages();
                 $scope.countMessagesFromUser();
             });
         };
@@ -42,6 +42,7 @@
                     $scope.users[i].newMessageCount = 0;
                 }
                 $scope.getSocket();
+                $scope.getAllMessages();
             });
         }, function() {
             $http.get("/api/oauth/uri").then(function(result) {
@@ -156,21 +157,18 @@
                 }
                 $scope.tempMessageCount = 0;
             });
+            $scope.countMissedMessages();
         };
 
         $scope.clearNotifications = function() {
             $scope.clearNotif = true;
         };
 
-        $scope.startAllMessageInterval = function() {
-            setInterval($scope.getAllMessages, 2000);
-        };
-
         $scope.startUsersInterval = function () {
-            setInterval($scope.getUsers, 5000);
+            setInterval($scope.getUsers, 10000);
         };
 
-        setInterval($scope.countMissedMessages, 1000);
+        setInterval($scope.countMessagesFromUser, 3000);
 
         $scope.socketSendMessage = function(newMessage) {
             var message = {
@@ -191,7 +189,6 @@
         };
 
         $scope.startUsersInterval();
-        $scope.startAllMessageInterval();
 
     }); // END OF CONTROLLER
 
