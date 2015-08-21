@@ -109,10 +109,11 @@
 
 <section ng-show="loggedIn" class="col-md-7 nopad">
     <div class="col-md-offset-1">
-        <h2>Chat Window</h2>
+        <h2 ng-if="currentChatTarget">Chat Window</h2>
+        <h2 ng-if="!currentChatTarget">Click on a user to begin chat</h2>
         <h4 ng-if="currentChatTarget">{{currentChatTarget.name}}</h4>
     </div>
-    <div class="col-md-11 col-md-offset-1 container-fluid">
+    <div class="col-md-11 col-md-offset-1 container-fluid" ng-if="currentChatTarget">
         <div ng-repeat="message in targetChatMessages" id="post-{{ ::$index }}" scroll-to-last="post-{{ ::$index }}">
             <div class="row receivedMessage" ng-if="message.senderId != user._id">
                 <div class="col-md-1 nopad messageAvatar" style="vertical-align:middle">
@@ -143,12 +144,12 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-md-9 col-md-offset-1">
+        <div class="col-md-9 col-md-offset-1" ng-if="currentChatTarget">
             <form ng-submit="socketSendMessage(newMessage)">
                 <input type="text" placeholder="What would you like to say?" ng-model="newMessage" id="new-message" class="form-control nopad">
             </form>
         </div>
-        <div class="col-md-2">
+        <div class="col-md-2" ng-if="currentChatTarget">
             <button ng-click="socketSendMessage(newMessage)" id="create-chat" class="btn btn-primary btn-block"><span class="glyphicon glyphicon-send"></span> Send</button>
         </div>
     </div>

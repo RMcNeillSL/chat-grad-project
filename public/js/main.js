@@ -22,7 +22,6 @@
                 $scope.targetChatMessages.push(message);
                 $scope.convertMessages();
                 $scope.countMessagesFromUser();
-                //$scope.numberOfChatMessages = $scope.targetChatMessages.length;
             });
         };
 
@@ -82,8 +81,8 @@
             $scope.activeChatCount++;
             user.newMessage = false;
             //$scope.missedMessageReset = true;
-            $scope.missedMessages = $scope.missedMessages - user.newMessageCount;
-            $scope.lastNumberMessages = $scope.lastNumberMessages + user.newMessageCount;
+            $scope.missedMessages -= user.newMessageCount;
+            $scope.lastNumberMessages += user.newMessageCount;
             user.newMessageCount = 0;
             user.messageCount = 0;
             $scope.getMessages(user);
@@ -139,7 +138,7 @@
         $scope.countMissedMessages = function() {
             $scope.tempMissedMessages = 0;
             $scope.users.forEach(function(user) {
-                $scope.tempMissedMessages = $scope.tempMissedMessages + user.newMessageCount;
+                $scope.tempMissedMessages += user.newMessageCount;
             });
             $scope.missedMessages = $scope.tempMissedMessages;
         };
