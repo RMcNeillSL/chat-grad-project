@@ -26,13 +26,9 @@ module.exports = function(port, db, githubAuthoriser) {
             console.log(socket.handshake.query.userid, ": Disconnected");
         });
 
-        socket.on("start chat", function (chatTarget) {
-            socket.join(chatTarget);
-            console.log(socket.handshake.query.userid, "joined chat with", chatTarget);
-        });
-
         socket.on("message", function (message) {
             io.to(message.sendToId).emit("message", message);
+            io.to(message.senderId).emit("message", message);
 
             conversations.insertOne({
                 senderId: socket.handshake.query.userid,

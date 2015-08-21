@@ -19,8 +19,13 @@
             $scope.socket = io.connect("", {query: "userid=" + $scope.user._id});
 
             $scope.socket.on("message", function(message) {
-                $scope.targetChatMessages.push(message);
-                $scope.convertMessages();
+                if(message.senderId === $scope.currentChatTarget.id || message.senderId === $scope.user._id) {
+                    $scope.targetChatMessages.push(message);
+                    $scope.convertMessages();
+                    console.log("ACTIVE: ", message);
+                } else {
+                    console.log("NOT ACTIVE: ", message);
+                }
                 $scope.countMessagesFromUser();
             });
         };
@@ -80,14 +85,12 @@
             $scope.currentChatTarget = user;
             $scope.activeChatCount++;
             user.newMessage = false;
-            //$scope.missedMessageReset = true;
             $scope.missedMessages -= user.newMessageCount;
             $scope.lastNumberMessages += user.newMessageCount;
             user.newMessageCount = 0;
             user.messageCount = 0;
             $scope.getMessages(user);
             $scope.countMessagesFromUser();
-            $scope.socketStartChat(user);
         };
 
         $scope.getMessages = function(user) {
