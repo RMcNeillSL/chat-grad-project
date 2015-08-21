@@ -14,6 +14,8 @@
         $scope.tempMessageCount = 0;
         $scope.missedMessageReset = false;
         $scope.targetChatMessages = [];
+        $scope.onlineCount = 0;
+        $scope.offlineCount = 1;
 
         $scope.getSocket = function() {
             $scope.socket = io.connect("", {query: "userId=" + $scope.user._id});
@@ -34,6 +36,24 @@
                 $scope.getMessages();
                 alert(alertString);
             });
+
+            $scope.socket.on("user online", function(userId) {
+                for (var i = 0; i < $scope.users.length; i++) {
+                    if ($scope.users[i].id === userId){
+                        $scope.users[i].online = true;
+                        $scope.onlineCount++;
+                    }
+                }
+            });
+
+            $scope.socket.on("user offline", function(userId) {
+                for (var i = 0; i < $scope.users.length; i++) {
+                    if ($scope.users[i].id === userId){
+                        $scope.users[i].online = false;
+                        $scope.onlineCount--;
+                    }
+                }
+            });
         };
 
         $http.get("/api/user").then(function(userResult) {
@@ -48,6 +68,7 @@
                     $scope.users[i].messageCount = 0;
                     $scope.users[i].newMessage = false;
                     $scope.users[i].newMessageCount = 0;
+                    $scope.users[i].online = false;
                 }
                 $scope.getSocket();
                 $scope.getAllMessages();
@@ -72,6 +93,7 @@
                         $scope.users[i].active = false;
                     }
                 }
+                $scope.offlineCount = $scope.users.length - $scope.onlineCount;
             });
         };
 
@@ -117,9 +139,8 @@
                 $scope.allMessages = result.data;
                 $scope.numberOfMessages = $scope.allMessages.length;
 
-                if (!$scope.initialisation || $scope.clearNotif) {
+                if (!$scope.initialisation) {
                     $scope.initialisation = true;
-                    $scope.clearNotif = false;
                     $scope.lastNumberMessages = $scope.numberOfMessages;
                 }
 
@@ -168,10 +189,6 @@
             $scope.countMissedMessages();
         };
 
-        $scope.clearNotifications = function() {
-            $scope.clearNotif = true;
-        };
-
         $scope.startUsersInterval = function () {
             setInterval($scope.getUsers, 10000);
         };
@@ -199,6 +216,11 @@
             $scope.socket.emit("delete", $scope.currentChatTarget.id);
         };
 
+        $scope.userHeartBeat = function() {
+            $scope.socket.emit("user heartbeat");
+        };
+
+        setInterval($scope.userHeartBeat, 5000);
         $scope.startUsersInterval();
 
     }); // END OF CONTROLLER

@@ -34,9 +34,10 @@
                     <td style="vertical-align:middle" ng-if="!user.name">
                         {{user._id}}
                     </td>
-                    <td style="vertical-align:middle">
-                        <button ng-click="clearNotifications()" id="clear-notif" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-user"></span> Clear Notifications</button>
+                    <td style="vertical-align:middle" ng-if="currentChatTarget">
+                        <button ng-click="deleteChat()" id="delete-chat" class="delete-btn btn-danger btn-sm"><span class="glyphicon glyphicon-trash"></span> Clear Conversation</button>
                     </td>
+                    <td ng-if="!currentChatTarget"></td>
                 </tr>
             </table>
 
@@ -68,7 +69,7 @@
                             0 new
                         </td>
                         <td style="vertical-align:middle">
-                            <button ng-click="setActiveChat(singleUser)" id="start-chat" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-user"></span> Chat</button>
+                            <button ng-click="setActiveChat(singleUser)" id="start-chat" class="btn btn-success btn-sm"><span class="glyphicon glyphicon-user"></span> Chat</button>
                         </td>
                     </tr>
                 </table>
@@ -79,15 +80,16 @@
                 <input id="search-users" type="text" placeholder="Search users" ng-model="searchUsers" class="form-control">
             </div>
 
-            <h2>Start New Chat</h2>
-            <div class="regUsers">
-                <table class="table table-striped" id="user-list">
+            <h2 ng-if="onlineCount">Online Users</h2>
+            <div class="activeChats"  ng-if="onlineCount">
+                <table class="table table-striped" id="active-chat-list">
                     <tr>
                         <th>Avatar</th>
                         <th>User</th>
+                        <th></th>
                         <th>Actions</th>
                     </tr>
-                    <tr ng-repeat="singleUser in users | filter: {active: false} | filter: {name: searchUsers}" ng-if="singleUser.name != user.name">
+                    <tr ng-repeat="singleUser in users | filter: {online: true} | filter: {active: false}" ng-if="singleUser.name != user.name">
                         <td>
                             <img src={{singleUser.avatarUrl}} class="img-circle" alt="Cinque Terre" width="50" height="50">
                         </td>
@@ -97,8 +99,39 @@
                         <td style="vertical-align:middle" ng-if="!singleUser.name">
                             {{singleUser.id}}
                         </td>
+                        <td style="vertical-align:middle" class="notification" ng-if="singleUser.newMessageCount">
+                            {{singleUser.newMessageCount}} new!
+                        </td>
+                        <td style="vertical-align:middle" ng-if="!singleUser.newMessageCount">
+                            0 new
+                        </td>
                         <td style="vertical-align:middle">
-                            <button ng-click="setActiveChat(singleUser)" id="start-chat" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-user"></span> Chat</button>
+                            <button ng-click="setActiveChat(singleUser)" id="start-chat" class="btn btn-success btn-sm"><span class="glyphicon glyphicon-user"></span> Chat</button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <h2 ng-if="offlineCount">Offline Users</h2>
+            <div class="regUsers" ng-if="offlineCount">
+                <table class="table table-striped" id="user-list">
+                    <tr>
+                        <th>Avatar</th>
+                        <th>User</th>
+                        <th>Actions</th>
+                    </tr>
+                    <tr ng-repeat="singleUser in users | filter: {active: false} | filter: {online: false} | filter: {name: searchUsers}" ng-if="singleUser.name != user.name">
+                        <td>
+                            <img src={{singleUser.avatarUrl}} class="img-circle" alt="Cinque Terre" width="50" height="50">
+                        </td>
+                        <td style="vertical-align:middle" ng-if="singleUser.name">
+                            {{singleUser.name}}
+                        </td>
+                        <td style="vertical-align:middle" ng-if="!singleUser.name">
+                            {{singleUser.id}}
+                        </td>
+                        <td style="vertical-align:middle" ng-if="!singleUser.online">
+                            <button ng-click="setActiveChat(singleUser)" id="start-chat" class="btn btn-danger btn-sm"><span class="glyphicon glyphicon-user"></span> Chat</button>
                         </td>
                     </tr>
                 </table>
@@ -116,7 +149,6 @@
     <div class="row">
         <div class="col-md-offset-1" style="font-size:20px; padding-left:15px" ng-if="currentChatTarget">
             Conversation with: {{currentChatTarget.name}}
-            <button ng-click="deleteChat()" id="delete-chat" class="delete-btn btn-danger btn-sm"><span class="glyphicon glyphicon-trash"></span> Clear Conversation</button>
         </div>
     </div>
 
@@ -151,7 +183,7 @@
         </div>
     </div>
     <div class="row">
-        <form ng-submit="socketSendMessage(newMessage)" class="col-md-10 col-md-offset-1">
+        <form ng-submit="socketSendMessage(newMessage)" class="col-md-10 col-md-offset-1" ng-if="currentChatTarget">
                 <input type="text" placeholder="What would you like to say?" ng-model="newMessage" id="new-message" class="form-control nopad">
         </form>
     </div>

@@ -19,11 +19,14 @@ module.exports = function(port, db, githubAuthoriser) {
     });
 
     io.on("connection", function(socket) {
-        console.log(socket.handshake.query.userId, ": Connected");
         socket.join(socket.handshake.query.userId);
 
+        socket.on("user heartbeat", function() {
+            socket.broadcast.emit("user online", socket.handshake.query.userId);
+        });
+
         socket.on("disconnect", function () {
-            console.log(socket.handshake.query.userId, ": Disconnected");
+            socket.broadcast.emit("user offline", socket.handshake.query.userId);
         });
 
         socket.on("message", function (message) {
