@@ -14,6 +14,7 @@
         $scope.tempMessageCount = 0;
         $scope.missedMessageReset = false;
         $scope.targetChatMessages = [];
+        $scope.newMessage;
 
         $scope.getSocket = function() {
             $scope.socket = io.connect("", {query: "userid=" + $scope.user._id});
@@ -22,9 +23,6 @@
                 if(message.senderId === $scope.currentChatTarget.id || message.senderId === $scope.user._id) {
                     $scope.targetChatMessages.push(message);
                     $scope.convertMessages();
-                    console.log("ACTIVE: ", message);
-                } else {
-                    console.log("NOT ACTIVE: ", message);
                 }
                 $scope.countMessagesFromUser();
             });
@@ -50,18 +48,6 @@
                 $scope.loginUri = result.data.uri;
             });
         });
-
-        $scope.sendMessage = function(newMessage) {
-            $http.post("/api/conversations/" + $scope.currentChatTarget.id, {
-                "sent": Date.now(),
-                "body": newMessage
-            }).then(function (response) {
-                $scope.newMessage = "";
-                $scope.lastNumberMessages++;
-            }, function (response) {
-                $scope.errorText = "Failed to send message. Reason: " + response.status + " - " + response.responseText;
-            });
-        };
 
         $scope.getUsers = function() {
             $http.get("/api/users").then(function(result) {
@@ -129,7 +115,6 @@
                 }
 
                 if ($scope.missedMessages) {
-                    //$scope.missedMessages = ($scope.numberOfMessages - $scope.lastNumberMessages);
                     document.title = "The Speakeasy (" + $scope.missedMessages + ")";
                 } else {
                     document.title = "The Speakeasy";
@@ -139,11 +124,16 @@
         };
 
         $scope.countMissedMessages = function() {
-            $scope.tempMissedMessages = 0;
+            $scope.missedMessages = 0;
             $scope.users.forEach(function(user) {
-                $scope.tempMissedMessages += user.newMessageCount;
+                $scope.missedMessages += user.newMessageCount;
             });
-            $scope.missedMessages = $scope.tempMissedMessages;
+
+            if ($scope.missedMessages) {
+                document.title = "The Speakeasy (" + $scope.missedMessages + ")";
+            } else {
+                document.title = "The Speakeasy";
+            }
         };
 
         $scope.countMessagesFromUser = function() {
@@ -180,7 +170,7 @@
             setInterval($scope.getUsers, 5000);
         };
 
-        setInterval($scope.countMissedMessages, 10000);
+        setInterval($scope.countMissedMessages, 1000);
 
         $scope.socketSendMessage = function(newMessage) {
             var message = {
@@ -189,6 +179,7 @@
                 sendDate: Date.now(),
                 message: newMessage
             };
+
             $scope.socket.emit("message", message);
             $scope.newMessage = "";
             $scope.lastNumberMessages++;

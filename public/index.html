@@ -120,19 +120,19 @@
                     <img src={{currentChatTarget.avatarUrl}} class="img-circle center-block" alt="Cinque Terre" width="50" height="50" ng-if="message.senderId != user._id">
                     <img src={{user.avatarUrl}} class="img-circle center-block" alt="Cinque Terre" width="50" height="50" ng-if="message.senderId == user._id">
                 </div>
-                <div class="col-md-2 nopad">
+                <div class="col-md-3 nopad">
                     <p class="messageSender nopad">{{message.senderId}}</p>
                     <p class="messageTime nopad">{{message.formattedTime}}</p>
                 </div>
-                <div class="col-md-9 messageText" style="vertical-align:middle">
+                <div class="col-md-8 messageText" style="vertical-align:middle">
                     {{message.message}}
                 </div>
             </div>
             <div class="row sentMessage" ng-if="message.senderId == user._id">
-                <div class="col-md-9 messageText" style="vertical-align:middle">
+                <div class="col-md-8 messageText" style="vertical-align:middle">
                     {{message.message}}
                 </div>
-                <div class="col-md-2 nopad">
+                <div class="col-md-3 nopad">
                     <p class="messageSender nopad">{{message.senderId}}</p>
                     <p class="messageTime nopad">{{message.formattedTime}}</p>
                 </div>
@@ -144,14 +144,9 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-md-9 col-md-offset-1" ng-if="currentChatTarget">
-            <form ng-submit="socketSendMessage(newMessage)">
+        <form ng-submit="socketSendMessage(newMessage)" class="col-md-10 col-md-offset-1">
                 <input type="text" placeholder="What would you like to say?" ng-model="newMessage" id="new-message" class="form-control nopad">
-            </form>
-        </div>
-        <div class="col-md-2" ng-if="currentChatTarget">
-            <button ng-click="socketSendMessage(newMessage)" id="create-chat" class="btn btn-primary btn-block"><span class="glyphicon glyphicon-send"></span> Send</button>
-        </div>
+        </form>
     </div>
 </section>
     <link href="main.css" rel="stylesheet" type="text/css">
